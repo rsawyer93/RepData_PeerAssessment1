@@ -13,10 +13,60 @@ All steps and code are shown.
 
 Initially the required libraries and data are loaded. 
 
-```{r}
+
+```r
 rm(list = ls())
 library(dplyr)
+```
+
+```
+## 
+## Attaching package: 'dplyr'
+```
+
+```
+## The following objects are masked from 'package:stats':
+## 
+##     filter, lag
+```
+
+```
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+```
+
+```r
 library(plyr)
+```
+
+```
+## -------------------------------------------------------------------------
+```
+
+```
+## You have loaded plyr after dplyr - this is likely to cause problems.
+## If you need functions from both plyr and dplyr, please load plyr first, then dplyr:
+## library(plyr); library(dplyr)
+```
+
+```
+## -------------------------------------------------------------------------
+```
+
+```
+## 
+## Attaching package: 'plyr'
+```
+
+```
+## The following objects are masked from 'package:dplyr':
+## 
+##     arrange, count, desc, failwith, id, mutate, rename, summarise,
+##     summarize
+```
+
+```r
 library(ggplot2)
 wd <- 'C:\\Users\\Rob\\Documents\\Coursera\\RepData_PA1\\RepData_PeerAssessment1'
 setwd(wd)
@@ -35,7 +85,8 @@ activity_na_rem <- activity[complete.cases(activity),]
 In order to calculate the mean total steps per day, the data is summarised for each day. This data is
 then plotted onto a histogram. 
 
-```{r}
+
+```r
 # Data summarised per day
 activity_per_day<- as.data.frame(ddply(activity_na_rem,'date',summarise,
                                          total_steps = sum(steps),
@@ -51,13 +102,17 @@ SPD_hist <- ggplot() +
         theme_light()+
         theme(plot.title = element_text(hjust = 0.5))
 SPD_hist
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
+
+```r
 # mean and median steps per day
 mean_SPD <- round(mean(activity_per_day$total_steps),digits = 2)
 median_SPD <- median(activity_per_day$total_steps)
 ```
-The mean number of steps per day is `r format(mean_SPD, scientifc = FALSE) ` steps and the median steps per day
-is `r format(median_SPD, scientific = FALSE)` steps.  
+The mean number of steps per day is 10766.19 steps and the median steps per day
+is 10765 steps.  
 
 ## What is the average daily activity pattern?
 
@@ -65,7 +120,8 @@ In order to show the average daily activity pattern, first the data is summarise
 
 A plot of the average daily activity pattern by 5min intervals is shown below.  
 
-```{r}
+
+```r
 # Data summarised per 5min period
 activity_per_5min <- as.data.frame(ddply(activity_na_rem,'interval',summarise,
                                          total_steps = sum(steps),
@@ -82,29 +138,34 @@ ADA_plot <- ggplot() +
        theme_light()+
        theme(plot.title = element_text(hjust = 0.5))
 ADA_plot
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
 
+```r
 # 5min period with max average number of steps
 maxavgsteps <- max(activity_per_5min$avg_steps)
 interval <- activity_per_5min[activity_per_5min$avg_steps == maxavgsteps,'interval']
 ```
 
-The maximum average number of steps over the sample period occurs at `r interval`, or 08:35am.  
+The maximum average number of steps over the sample period occurs at 835, or 08:35am.  
 
 ## Imputing missing values
 
 
-```{r}
+
+```r
 # total number of missing values
 total_missing_values <- nrow(activity)-nrow(activity_na_rem)
 ```
-The total number of missing values contained within the data is `r total_missing_values`.  
+The total number of missing values contained within the data is 2304.  
 
 The average number of steps in the 5 minute period of each missing value is used to impute the data. 
 
 The histogram of the total steps per day including the imputted values is shown below.
 
-```{r}
+
+```r
 # strategy to impute missing data - replace with average for that 5min period
 activity_imputted <- merge(activity,activity_per_5min, by='interval', all.x = TRUE)
 activity_imputted <- activity_imputted[with(activity_imputted,order(date,interval)), ]
@@ -125,20 +186,24 @@ SPD_hist_imputted <- ggplot() +
         theme_light()+
         theme(plot.title = element_text(hjust = 0.5))
 SPD_hist_imputted
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
+
+```r
 # mean and median of total number of steps per day
 mean_SPD_imputted <- round(mean(activity_per_day_imputted$total_steps), digits = 2)
 median_SPD_imputted <- median(activity_per_day_imputted$total_steps)
-
 ```
 
-The mean and median values for the imputted data are `r format( mean_SPD_imputted, scientific=FALSE)` steps and `r format(median_SPD_imputted, scientifc = FALSE)` steps, respectively. These values are slightly below the previous values without the imputted data, by 1-3 steps. 
+The mean and median values for the imputted data are 10765.64 steps and 10762 steps, respectively. 
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
 In order to compare the differences between weekdays and weekends, the day of the week for each date is found. This is then categorised into either weekdays or weekends. The plot below compares the difference in daily activity patterns between weekdays and weekends. 
-```{r}
+
+```r
 # create new dataframe containing weekdays and category and join on activity data
 activity_imputted$weekday <- weekdays(as.Date(activity_imputted$date))
 weekday <- c('Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday')
@@ -163,3 +228,5 @@ ADA_comparison <- ggplot() +
         theme(plot.title = element_text(hjust = 0.5))
 ADA_comparison
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
